@@ -1,6 +1,6 @@
 {
   "name": "national-metadata",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The internet's most beautiful npm package for comprehensive country data including ISO codes, names, continents, and mercator coordinates",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
