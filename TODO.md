@@ -1,5 +1,6 @@
 # Overview
-We are building `jiang-hu`, the internet's most beautiful npm package that contains comprehensive data about sovereign countries, including immigration programs & tax rates. For the initial release, we are working on releasing a TypeScript-based npm package that focuses first on shipping utility functions meant to make it easier to work with the data surrounding countries; 2 digit vs 3 digit ISO codes, how to convert an ISO Code to the name of the country, the mercator hashes for placing the countries on a world map, and more.
+
+We are building `national-metadata`, the internet's most beautiful npm package that contains comprehensive data about sovereign countries, including immigration programs & tax rates. For the initial release, we are working on releasing a TypeScript-based npm package that focuses first on shipping utility functions meant to make it easier to work with the data surrounding countries; 2 digit vs 3 digit ISO codes, how to convert an ISO Code to the name of the country, the mercator hashes for placing the countries on a world map, and more.
 
 ## Todo
 

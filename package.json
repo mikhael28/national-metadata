@@ -1,6 +1,6 @@
 {
-  "name": "jiang-hu",
-  "version": "0.1.2",
+  "name": "national-metadata",
+  "version": "0.1.0",
   "description": "The internet's most beautiful npm package for comprehensive country data including ISO codes, names, continents, and mercator coordinates",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,12 +24,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mikhael28/jiang-hu.git"
+    "url": "https://github.com/mikhael28/national-metadata.git"
   },
   "bugs": {
-    "url": "https://github.com/mikhael28/jiang-hu/issues"
+    "url": "https://github.com/mikhael28/national-metadata/issues"
   },
-  "homepage": "https://github.com/mikhael28/jiang-hu#readme",
+  "homepage": "https://github.com/mikhael28/national-metadata#readme",
   "devDependencies": {
     "typescript": "^5.0.0"
   },
