@@ -21,7 +21,7 @@
     "typescript"
   ],
   "author": "Michael Nightingale, Expatria, Inc",
-  "license": "MIT",
+  "license": "GNU AGPLv3",
   "repository": {
     "type": "git",
     "url": "https://github.com/mikhael28/national-metadata.git"
