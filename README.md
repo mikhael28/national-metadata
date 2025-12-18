@@ -409,6 +409,262 @@ function normalizeCountryCode(code: string): string | null {
 }
 ```
 
+## 🏙️ City Data
+
+National Metadata includes comprehensive city slug data for easy integration with city-based applications.
+
+### City Functions
+
+#### `getCitySlugs(): string[]`
+
+Returns array of all city slugs (1300+ cities).
+
+```typescript
+import { getCitySlugs } from "national-metadata";
+
+const cities = getCitySlugs();
+// ["lisbon", "berlin", "tokyo", "new-york-city-ny", ...]
+```
+
+#### `getCityCountrySlugs(): string[]`
+
+Returns array of city slugs with country information (format: `city-country`).
+
+```typescript
+import { getCityCountrySlugs } from "national-metadata";
+
+const citiesWithCountries = getCityCountrySlugs();
+// ["lisbon-portugal", "berlin-germany", "tokyo-japan", ...]
+```
+
+#### `isCitySlugValid(slug: string): boolean`
+
+Validates if a city slug exists in the database.
+
+```typescript
+import { isCitySlugValid } from "national-metadata";
+
+isCitySlugValid("tokyo"); // true
+isCitySlugValid("fake-city"); // false
+```
+
+#### `isCityCountrySlugValid(slug: string): boolean`
+
+Validates if a city-country slug exists.
+
+```typescript
+import { isCityCountrySlugValid } from "national-metadata";
+
+isCityCountrySlugValid("tokyo-japan"); // true
+isCityCountrySlugValid("tokyo-china"); // false
+```
+
+### City Data Exports
+
+```typescript
+import { city_slugs, city_country_slugs } from "national-metadata";
+
+// Array of 1300+ city slugs
+city_slugs; // ["lisbon", "berlin", "tokyo", ...]
+
+// Array of 1300+ city-country slugs
+city_country_slugs; // ["lisbon-portugal", "berlin-germany", ...]
+```
+
+## ✈️ Immigration & Visa Data
+
+Comprehensive visa requirements data for all countries (updated Q3 2024).
+
+### Visa Functions
+
+#### `getVisaRequirements(countryCode: string): VisaTravel | undefined`
+
+Gets all visa information for a country.
+
+```typescript
+import { getVisaRequirements } from "national-metadata";
+
+const usVisa = getVisaRequirements("US");
+// {
+//   country_code: "US",
+//   visa_free: ["Canada", "Mexico", ...],
+//   visa_on_arrival: [...],
+//   e_visa: [...],
+//   visa_required: [...]
+// }
+```
+
+#### `getVisaFreeCountries(countryCode: string): string[] | undefined`
+
+Gets list of countries that don't require visa.
+
+```typescript
+import { getVisaFreeCountries } from "national-metadata";
+
+const visaFree = getVisaFreeCountries("US");
+// ["Canada", "Mexico", "United Kingdom", ...]
+```
+
+#### `getVisaOnArrivalCountries(countryCode: string): string[] | undefined`
+
+Gets list of countries offering visa on arrival.
+
+```typescript
+import { getVisaOnArrivalCountries } from "national-metadata";
+
+const visaOnArrival = getVisaOnArrivalCountries("US");
+```
+
+#### `getEVisaCountries(countryCode: string): string[] | undefined`
+
+Gets list of countries offering e-visa.
+
+```typescript
+import { getEVisaCountries } from "national-metadata";
+
+const eVisa = getEVisaCountries("US");
+```
+
+#### `getVisaRequiredCountries(countryCode: string): string[] | undefined`
+
+Gets list of countries requiring visa.
+
+```typescript
+import { getVisaRequiredCountries } from "national-metadata";
+
+const visaRequired = getVisaRequiredCountries("US");
+```
+
+### Visa Data Exports
+
+```typescript
+import { visa_travel, type VisaTravel } from "national-metadata";
+
+// Record mapping country codes to visa requirements
+visa_travel["US"]; // Full visa data for United States
+
+// TypeScript interface
+interface VisaTravel {
+  country_code: string;
+  e_visa?: string[];
+  visa_on_arrival?: string[];
+  visa_required?: string[];
+  visa_free?: string[];
+}
+```
+
+## 📊 Legatum Prosperity Index 2023
+
+Access comprehensive prosperity rankings data from the Legatum Institute's 2023 Prosperity Index.
+
+### Legatum Functions
+
+#### `getLegatumData(): Legatum2023[]`
+
+Returns complete Legatum prosperity rankings.
+
+```typescript
+import { getLegatumData } from "national-metadata";
+
+const allRankings = getLegatumData();
+// Array of 167 countries with 12 prosperity pillars
+```
+
+#### `getLegatumRankingByCountry(countryName: string): Legatum2023 | undefined`
+
+Gets prosperity ranking for a specific country.
+
+```typescript
+import { getLegatumRankingByCountry } from "national-metadata";
+
+const denmark = getLegatumRankingByCountry("Denmark");
+// {
+//   country: "Denmark",
+//   overall: 1,
+//   safety_and_security: 6,
+//   personal_freedom: 2,
+//   governance: 3,
+//   social_capital: 1,
+//   investment_environment: 8,
+//   enterprise_conditions: 8,
+//   infrastructure_and_market_access: 9,
+//   economic_quality: 7,
+//   living_conditions: 2,
+//   health: 16,
+//   education: 5,
+//   natural_environment: 5
+// }
+```
+
+#### `getLegatumTopCountries(limit?: number): Legatum2023[]`
+
+Gets top N countries by prosperity ranking (default 10).
+
+```typescript
+import { getLegatumTopCountries } from "national-metadata";
+
+const top10 = getLegatumTopCountries();
+const top5 = getLegatumTopCountries(5);
+// Returns top ranked countries
+```
+
+#### `getLegatumCountriesByOverallRank(minRank: number, maxRank: number): Legatum2023[]`
+
+Gets countries within a rank range.
+
+```typescript
+import { getLegatumCountriesByOverallRank } from "national-metadata";
+
+const topTier = getLegatumCountriesByOverallRank(1, 20);
+// Returns countries ranked 1-20
+```
+
+### Legatum Data Exports
+
+```typescript
+import { legatum_2023, type Legatum2023 } from "national-metadata";
+
+// Array of all country rankings
+legatum_2023; // 167 countries
+
+// TypeScript interface
+interface Legatum2023 {
+  country: string;
+  overall: number;
+  safety_and_security: number;
+  personal_freedom: number;
+  governance: number;
+  social_capital: number;
+  investment_environment: number;
+  enterprise_conditions: number;
+  infrastructure_and_market_access: number;
+  economic_quality: number;
+  living_conditions: number;
+  health: number;
+  education: number;
+  natural_environment: number;
+}
+```
+
+### Legatum Index Pillars
+
+The Legatum Prosperity Index measures prosperity across 12 pillars:
+
+1. **Safety & Security**: Personal and national security
+2. **Personal Freedom**: Individual liberties and rights
+3. **Governance**: Effective and accountable governance
+4. **Social Capital**: Social cohesion and engagement
+5. **Investment Environment**: Protection of investors and financial infrastructure
+6. **Enterprise Conditions**: Business environment and competition
+7. **Infrastructure & Market Access**: Physical and digital infrastructure
+8. **Economic Quality**: Economic growth and opportunity
+9. **Living Conditions**: Material wellbeing and housing
+10. **Health**: Physical and mental health outcomes
+11. **Education**: Access to quality education
+12. **Natural Environment**: Environmental quality and protection
+
+Lower numbers indicate better rankings (1 = best).
+
 ## Contributing
 
 We welcome contributions! Please see our contributing guidelines for more details.
@@ -419,7 +675,18 @@ MIT License - see LICENSE file for details.
 
 ## Changelog
 
-### v0.2.0
+### v0.1.2
+
+- **NEW**: City data exports - 1300+ city slugs and city-country slugs
+- **NEW**: City utility functions: `getCitySlugs`, `getCityCountrySlugs`, `isCitySlugValid`, `isCityCountrySlugValid`
+- **NEW**: Immigration & Visa data - Comprehensive visa requirements for all countries (Q3 2024)
+- **NEW**: Visa utility functions: `getVisaRequirements`, `getVisaFreeCountries`, `getVisaOnArrivalCountries`, `getEVisaCountries`, `getVisaRequiredCountries`
+- **NEW**: Legatum Prosperity Index 2023 - Rankings for 167 countries across 12 prosperity pillars
+- **NEW**: Legatum utility functions: `getLegatumData`, `getLegatumRankingByCountry`, `getLegatumTopCountries`, `getLegatumCountriesByOverallRank`
+- **NEW**: TypeScript types: `VisaTravel`, `Legatum2023`
+- **IMPROVED**: Expanded package capabilities for travel, immigration, and prosperity research
+
+### v0.1.2
 
 - **NEW**: Flag SVGs for 260+ countries included in package
 - **NEW**: Flag utility functions: `getFlagPath`, `getFlagFilename`, `hasFlagForCountry`
