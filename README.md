@@ -173,6 +173,153 @@ Object mapping 3-digit ISO codes to size scale factors for visualization.
 countrySizeScales["USA"]; // 300
 ```
 
+## 🚩 Flag SVGs
+
+National Metadata now includes high-quality SVG flags for all countries! The package exports flag utilities and includes all SVG files, optimized for web applications.
+
+### Flag Functions
+
+#### `getFlagPath(countryCode: string): string`
+
+Returns the path to the flag SVG file for use in your bundler.
+
+```typescript
+import { getFlagPath } from "national-metadata";
+
+getFlagPath("US"); // "national-metadata/dist/flag-svg/US.svg"
+getFlagPath("fr"); // "national-metadata/dist/flag-svg/FR.svg" (case-insensitive)
+```
+
+#### `getFlagFilename(countryCode: string): string`
+
+Returns just the filename of the flag.
+
+```typescript
+import { getFlagFilename } from "national-metadata";
+
+getFlagFilename("US"); // "US.svg"
+```
+
+#### `hasFlagForCountry(countryCode: string): boolean`
+
+Check if a flag exists for a given country code.
+
+```typescript
+import { hasFlagForCountry } from "national-metadata";
+
+hasFlagForCountry("US"); // true
+hasFlagForCountry("XX"); // false
+```
+
+### Flag Data Exports
+
+#### `flagFilenames`
+
+Object mapping country codes to flag filenames.
+
+```typescript
+import { flagFilenames } from "national-metadata";
+
+flagFilenames["US"]; // "US.svg"
+Object.keys(flagFilenames).length; // 260+ flags available
+```
+
+#### `availableFlagCodes`
+
+Array of all country codes that have flags.
+
+```typescript
+import { availableFlagCodes } from "national-metadata";
+
+availableFlagCodes; // ["AC", "AD", "AE", "AF", ...]
+```
+
+### Using Flags in React/Next.js
+
+For React and Next.js applications, you can import flag SVGs directly:
+
+#### Option 1: Direct Import (Recommended for Modern Bundlers)
+
+```typescript
+import { country_to_code } from "national-metadata";
+
+// In your component
+<img
+  src={
+    new URL(
+      `../node_modules/national-metadata/dist/flag-svg/${
+        country_to_code[city.country]
+      }.svg`,
+      import.meta.url
+    ).href
+  }
+  alt={`${city.country} flag`}
+  className="w-12 h-12"
+/>;
+```
+
+#### Option 2: Next.js Public Folder (Copy to Public)
+
+```bash
+# Copy flags to your public folder
+cp -r node_modules/national-metadata/dist/flag-svg public/flags
+```
+
+Then use in your component:
+
+```typescript
+import { country_to_code } from "national-metadata";
+
+<img
+  src={`/flags/${country_to_code[city.country]}.svg`}
+  alt={`${city.country} flag`}
+  className="w-12 h-12"
+/>;
+```
+
+#### Option 3: Webpack/Vite with Explicit Imports
+
+For Vite or modern bundlers:
+
+```typescript
+// Create a flag component
+import { getFlagFilename } from "national-metadata";
+
+interface FlagProps {
+  countryCode: string;
+  className?: string;
+  alt?: string;
+}
+
+export function Flag({ countryCode, className, alt }: FlagProps) {
+  // Dynamic import for tree-shaking
+  const flagSrc = `/node_modules/national-metadata/dist/flag-svg/${countryCode.toUpperCase()}.svg`;
+
+  return (
+    <img
+      src={flagSrc}
+      alt={alt || `${countryCode} flag`}
+      className={className}
+    />
+  );
+}
+```
+
+### Tree-Shaking Support
+
+This package is fully optimized for tree-shaking. Only the functions and data you import will be included in your bundle:
+
+```typescript
+// This only bundles the flag utilities, not all country data
+import { getFlagPath, hasFlagForCountry } from "national-metadata";
+```
+
+The package uses:
+
+- `"sideEffects": false` for aggressive tree-shaking
+- ES Modules for optimal bundler support
+- Separate flag utilities to minimize bundle size
+
 ## TypeScript Support
 
 Full TypeScript support with exported types:
@@ -186,6 +333,7 @@ import type {
   CountryName,
   ThreeDigitCode,
   TwoDigitCode,
+  FlagCountryCode,
 } from "national-metadata";
 
 // Country interface
@@ -198,6 +346,7 @@ interface Country {
 // Type-safe country codes
 type CountryCode = keyof typeof code_to_country;
 type CountryName = keyof typeof country_to_code;
+type FlagCountryCode = keyof typeof flagFilenames; // All valid flag codes
 ```
 
 ## Use Cases
@@ -270,7 +419,17 @@ MIT License - see LICENSE file for details.
 
 ## Changelog
 
-### v1.0.0
+### v0.2.0
+
+- **NEW**: Flag SVGs for 260+ countries included in package
+- **NEW**: Flag utility functions: `getFlagPath`, `getFlagFilename`, `hasFlagForCountry`
+- **NEW**: Flag data exports: `flagFilenames`, `availableFlagCodes`
+- **NEW**: Full tree-shaking support with `sideEffects: false`
+- **NEW**: ES Modules support for better bundler optimization
+- **IMPROVED**: TypeScript types with new `FlagCountryCode` type
+- **IMPROVED**: Package exports map for better module resolution
+
+### v0.1.1
 
 - Initial release with comprehensive country data
 - ISO code conversion utilities

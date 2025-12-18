@@ -21,6 +21,16 @@ export { mercator_hash, countrySizeScales } from './mercator-hash';
 export { threeToTwo } from './three-to-two';
 export { twoToThree } from './two-to-three';
 
+// Export flag utilities
+export { 
+  getFlagPath, 
+  getFlagFilename, 
+  flagFilenames, 
+  availableFlagCodes,
+  hasFlagForCountry,
+  type FlagCountryCode 
+} from './flags';
+
 // Utility functions for working with country codes
 export function convertTwoToThree(twoDigitCode: string): string | undefined {
   return twoToThree[twoDigitCode.toUpperCase()];

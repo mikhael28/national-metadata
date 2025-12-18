@@ -3,11 +3,22 @@
   "version": "0.1.1",
   "description": "The internet's most beautiful npm package for comprehensive country data including ISO codes, names, continents, and mercator coordinates",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./flags/*": "./dist/flag-svg/*"
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run copy-flags",
+    "copy-flags": "mkdir -p dist/flag-svg && cp -r src/flag-svg/* dist/flag-svg/",
     "dev": "tsc --watch",
-    "prepublishOnly": "npm run build ",
+    "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "publish": "npm publish --access=public"
   },
@@ -35,6 +46,7 @@
   },
   "files": [
     "dist/**/*",
+    "dist/flag-svg/*.svg",
     "README.md",
     "LICENSE"
   ]
