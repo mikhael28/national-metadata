@@ -15,6 +15,9 @@ import {
   helloWorld,
   getCountryNameFromCode,
   convertTwoToThree,
+  getCountryMetadata,
+  getTaxationData,
+  getZeroTaxCountries,
 } from "national-metadata";
 
 // Hello World function
@@ -23,6 +26,20 @@ console.log(helloWorld()); // "Mr World Wide is here"
 // Convert ISO codes
 console.log(getCountryNameFromCode("US")); // "United States"
 console.log(convertTwoToThree("US")); // "USA"
+
+// Get detailed country metadata
+const usData = getCountryMetadata("US");
+console.log(usData?.name_chinese); // "美国"
+console.log(usData?.region); // "North America"
+
+// Get taxation information
+const usTax = getTaxationData("US");
+console.log(usTax?.personal_income_tax_limit); // 37
+console.log(usTax?.residence_threshold); // 183 days
+
+// Find tax-friendly countries
+const zeroTaxCountries = getZeroTaxCountries();
+console.log(zeroTaxCountries.length); // Countries with no income tax
 ```
 
 ## API Reference
@@ -334,13 +351,37 @@ import type {
   ThreeDigitCode,
   TwoDigitCode,
   FlagCountryCode,
+  TaxationData,
+  TaxCreditOrDeduction,
+  AdditionalTax,
+  TaxDataHash,
+  VisaTravel,
+  Legatum2023,
 } from "national-metadata";
 
-// Country interface
+// Country metadata interface
 interface Country {
-  iso_two: string;
+  cost_score: number;
+  country: string;
+  country_code: string;
+  long_slug: string;
   name: string;
-  continent: string;
+  name_chinese: string;
+  overall_score: number;
+  region: string;
+  short_slug: string;
+  slug: string;
+}
+
+// Taxation data interface
+interface TaxationData {
+  code: string;
+  slug: string;
+  zero_tax_system: boolean;
+  personal_income_tax_limit: number | undefined;
+  capital_percentage_limit: number | undefined;
+  residence_threshold?: number | null;
+  // ... many more fields
 }
 
 // Type-safe country codes
@@ -355,7 +396,12 @@ type FlagCountryCode = keyof typeof flagFilenames; // All valid flag codes
 - **Form Validation**: Validate country codes and names
 - **Data Normalization**: Convert between different ISO code formats
 - **Analytics**: Group data by continent using the country list
-- **Internationalization**: Display localized country names
+- **Internationalization**: Display localized country names (including Chinese)
+- **Tax Planning Tools**: Build calculators and comparison tools for international taxation
+- **Digital Nomad Apps**: Help remote workers find tax-friendly destinations
+- **Relocation Research**: Compare countries by cost scores, tax rates, and prosperity rankings
+- **Immigration Platforms**: Integrate visa and tax information for comprehensive country profiles
+- **Business Intelligence**: Analyze corporate tax rates and investment environments globally
 
 ## Examples
 
@@ -407,6 +453,95 @@ function normalizeCountryCode(code: string): string | null {
   }
   return code.length === 3 ? code : null;
 }
+```
+
+### Tax-Friendly Country Finder
+
+```typescript
+import {
+  getZeroTaxCountries,
+  getTerritorialTaxCountries,
+  getCountryMetadata,
+  getVisaFreeCountries,
+} from "national-metadata";
+
+// Find tax-friendly countries with high quality of life
+function findBestTaxDestinations(fromCountryCode: string) {
+  // Get countries with favorable tax systems
+  const zeroTax = getZeroTaxCountries();
+  const territorial = getTerritorialTaxCountries();
+  const allFavorable = [...zeroTax, ...territorial];
+
+  // Get visa-free destinations
+  const visaFree = getVisaFreeCountries(fromCountryCode) || [];
+
+  // Combine tax and metadata
+  return allFavorable
+    .map((taxData) => {
+      const metadata = getCountryMetadata(taxData.code);
+      return {
+        name: metadata?.name || taxData.code,
+        code: taxData.code,
+        region: metadata?.region,
+        overallScore: metadata?.overall_score,
+        costScore: metadata?.cost_score,
+        taxSystem: taxData.zero_tax_system ? "Zero Tax" : "Territorial",
+        personalTaxRate: taxData.personal_income_tax_limit || 0,
+        visaFree: visaFree.includes(metadata?.name || ""),
+      };
+    })
+    .filter((country) => country.overallScore && country.overallScore > 3)
+    .sort((a, b) => (b.overallScore || 0) - (a.overallScore || 0));
+}
+
+// Usage
+const destinations = findBestTaxDestinations("US");
+console.log("Best tax destinations:", destinations);
+```
+
+### Country Comparison Tool
+
+```typescript
+import {
+  getCountryMetadata,
+  getTaxationData,
+  getLegatumRankingByCountry,
+} from "national-metadata";
+
+function compareCountries(codes: string[]) {
+  return codes.map((code) => {
+    const metadata = getCountryMetadata(code);
+    const taxData = getTaxationData(code);
+    const prosperity = getLegatumRankingByCountry(metadata?.name || "");
+
+    return {
+      country: metadata?.name,
+      region: metadata?.region,
+      scores: {
+        cost: metadata?.cost_score,
+        overall: metadata?.overall_score,
+        prosperity: prosperity?.overall,
+      },
+      taxation: {
+        personalIncomeTax: taxData?.personal_income_tax_limit,
+        capitalGainsTax: taxData?.capital_percentage_limit,
+        corporateTax: taxData?.corporate_tax_rate,
+        residenceThreshold: taxData?.residence_threshold,
+        zeroTaxSystem: taxData?.zero_tax_system,
+      },
+      quality: {
+        safety: prosperity?.safety_and_security,
+        personalFreedom: prosperity?.personal_freedom,
+        education: prosperity?.education,
+        health: prosperity?.health,
+      },
+    };
+  });
+}
+
+// Usage
+const comparison = compareCountries(["US", "SG", "PT", "AE"]);
+console.log("Country comparison:", comparison);
 ```
 
 ## 🏙️ City Data
@@ -665,6 +800,227 @@ The Legatum Prosperity Index measures prosperity across 12 pillars:
 
 Lower numbers indicate better rankings (1 = best).
 
+## 🌐 Country Metadata
+
+Detailed country information including scores, regions, and Chinese translations.
+
+### Country Metadata Functions
+
+#### `getCountryMetadata(countryCode: string): Country | undefined`
+
+Gets comprehensive metadata for a country by its 2-digit ISO code.
+
+```typescript
+import { getCountryMetadata } from "national-metadata";
+
+const usData = getCountryMetadata("US");
+// {
+//   cost_score: 3.02,
+//   country: "United States",
+//   country_code: "US",
+//   long_slug: "united-states",
+//   name: "United States",
+//   name_chinese: "美国",
+//   overall_score: 3.33,
+//   region: "North America",
+//   short_slug: "united-states",
+//   slug: "united-states"
+// }
+```
+
+#### `getAllCountryMetadata(): { [key: string]: Country }`
+
+Returns all country metadata as an object keyed by country code.
+
+```typescript
+import { getAllCountryMetadata } from "national-metadata";
+
+const allCountries = getAllCountryMetadata();
+// { "US": {...}, "GB": {...}, ... }
+```
+
+#### `getCountryBySlug(slug: string): Country | undefined`
+
+Finds a country by any of its slug variants.
+
+```typescript
+import { getCountryBySlug } from "national-metadata";
+
+const usa = getCountryBySlug("united-states");
+const uk = getCountryBySlug("united-kingdom");
+```
+
+#### `getCountriesByRegion(region: string): Country[]`
+
+Gets all countries in a specific region.
+
+```typescript
+import { getCountriesByRegion } from "national-metadata";
+
+const europeanCountries = getCountriesByRegion("Europe");
+const asianCountries = getCountriesByRegion("Asia");
+// Returns array of Country objects
+```
+
+### Country Metadata Exports
+
+```typescript
+import { countries, type Country } from "national-metadata";
+
+// Object mapping country codes to detailed metadata
+countries["JP"]; // Japan's full metadata
+
+// TypeScript interface
+interface Country {
+  cost_score: number;
+  country: string;
+  country_code: string;
+  long_slug: string;
+  name: string;
+  name_chinese: string;
+  overall_score: number;
+  region: string;
+  short_slug: string;
+  slug: string;
+}
+```
+
+Available regions: `"Africa"`, `"Asia"`, `"Europe"`, `"North America"`, `"Latin America"`, `"Oceania"`, `"Antarctica"`, `"Caribbean"`
+
+## 💰 Taxation Data
+
+Comprehensive tax information for countries worldwide, including personal income tax, capital gains, wealth tax, and more.
+
+### Taxation Functions
+
+#### `getTaxationData(countryCode: string): TaxationData | undefined`
+
+Gets complete taxation information for a country.
+
+```typescript
+import { getTaxationData } from "national-metadata";
+
+const usTax = getTaxationData("US");
+// {
+//   code: "US",
+//   slug: "united-states",
+//   zero_tax_system: false,
+//   personal_income_tax_limit: 37,
+//   capital_percentage_limit: 20,
+//   residence_threshold: 183,
+//   corporate_tax_rate: 21,
+//   notes: [...],
+//   ...
+// }
+```
+
+#### `getAllTaxationData(): { [key: string]: TaxationData }`
+
+Returns all taxation data as an object keyed by country code.
+
+```typescript
+import { getAllTaxationData } from "national-metadata";
+
+const allTaxData = getAllTaxationData();
+```
+
+#### `getTaxationDataBySlug(slug: string): TaxationData | undefined`
+
+Finds taxation data by country slug.
+
+```typescript
+import { getTaxationDataBySlug } from "national-metadata";
+
+const singaporeTax = getTaxationDataBySlug("singapore");
+```
+
+#### `getZeroTaxCountries(): TaxationData[]`
+
+Gets all countries with zero income tax systems.
+
+```typescript
+import { getZeroTaxCountries } from "national-metadata";
+
+const taxHavens = getZeroTaxCountries();
+// Returns countries like Monaco, UAE, Bahamas, etc.
+```
+
+#### `getTerritorialTaxCountries(): TaxationData[]`
+
+Gets all countries with territorial tax systems (only tax local income).
+
+```typescript
+import { getTerritorialTaxCountries } from "national-metadata";
+
+const territorialCountries = getTerritorialTaxCountries();
+// Returns countries with territorial taxation
+```
+
+### Taxation Data Exports
+
+```typescript
+import {
+  taxation_data,
+  type TaxationData,
+  type TaxCreditOrDeduction,
+  type AdditionalTax,
+} from "national-metadata";
+
+// Object mapping country codes to taxation data
+taxation_data["SG"]; // Singapore's tax data
+
+// TypeScript interfaces
+interface TaxationData {
+  code: string;
+  slug: string;
+  zero_tax_system: boolean;
+  personal_income_tax_limit: number | undefined;
+  capital_percentage_limit: number | undefined;
+  residence_threshold?: number | null;
+  corporate_tax_rate?: number;
+  wealth_tax?: boolean;
+  inheritance_tax?: boolean;
+  value_added_tax_rate?: number;
+  government_tax_agency?: string;
+  notes: string[];
+  // ... and many more fields
+}
+
+interface TaxCreditOrDeduction {
+  title: string;
+  description: string;
+  url: string;
+  type: "rate" | "flat_amount" | "per_transaction";
+  class: "credit" | "deduction";
+  amount: number;
+}
+
+interface AdditionalTax {
+  threshold: string;
+  name: string;
+  rate: number;
+  title: string;
+  description: string;
+  url: string;
+}
+```
+
+### Tax Data Fields
+
+The taxation data includes:
+
+- **Personal Income Tax**: Maximum rates and system type
+- **Capital Gains Tax**: Rates and exemptions
+- **Corporate Tax**: Business taxation rates
+- **Wealth Tax**: Thresholds and percentages
+- **Inheritance Tax**: Estate and gift tax information
+- **VAT/Sales Tax**: Value-added tax rates
+- **Residence Threshold**: Days required for tax residency
+- **Withholding Tax**: Rates for residents and non-residents
+- **Tax System Type**: Worldwide, territorial, or citizenship-based
+- **Government Links**: Official tax agency websites
+- **Notes**: Important tax information and special cases
+
 ## Contributing
 
 We welcome contributions! Please see our contributing guidelines for more details.
@@ -674,6 +1030,16 @@ We welcome contributions! Please see our contributing guidelines for more detail
 MIT License - see LICENSE file for details.
 
 ## Changelog
+
+### v0.1.3
+
+- **NEW**: Country metadata - Comprehensive country information with scores, slugs, and Chinese translations
+- **NEW**: Country metadata functions: `getCountryMetadata`, `getAllCountryMetadata`, `getCountryBySlug`, `getCountriesByRegion`
+- **NEW**: Taxation data - Complete tax information for countries worldwide
+- **NEW**: Taxation functions: `getTaxationData`, `getAllTaxationData`, `getTaxationDataBySlug`, `getZeroTaxCountries`, `getTerritorialTaxCountries`
+- **NEW**: TypeScript types: `Country`, `TaxationData`, `TaxCreditOrDeduction`, `AdditionalTax`, `TaxDataHash`
+- **IMPROVED**: Enhanced Quick Start examples showing new metadata and taxation APIs
+- **IMPROVED**: Expanded package capabilities for tax planning, relocation research, and country comparison
 
 ### v0.1.2
 

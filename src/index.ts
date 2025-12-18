@@ -41,6 +41,18 @@ export { visa_travel, type VisaTravel } from "./immigration/visa-travel.js";
 // Export rankings data
 export { legatum_2023, type Legatum2023 } from "./rankings/legatum_2023.js";
 
+// Export country metadata
+export { countries, type Country } from "./countries.js";
+
+// Export taxation data
+export {
+  taxation_data,
+  type TaxationData,
+  type TaxCreditOrDeduction,
+  type AdditionalTax,
+  type TaxDataHash,
+} from "./tax-data.js";
+
 // Utility functions for working with country codes
 export function convertTwoToThree(twoDigitCode: string): string | undefined {
   return twoToThree[twoDigitCode.toUpperCase()];
@@ -155,12 +167,58 @@ export function getLegatumCountriesByOverallRank(
   );
 }
 
-// Type definitions for better TypeScript support
-export interface Country {
-  iso_two: string;
-  name: string;
-  continent: string;
+// Country metadata utility functions
+import { countries, Country } from "./countries.js";
+
+export function getCountryMetadata(countryCode: string): Country | undefined {
+  return countries[countryCode.toUpperCase()];
 }
+
+export function getAllCountryMetadata(): { [key: string]: Country } {
+  return countries;
+}
+
+export function getCountryBySlug(slug: string): Country | undefined {
+  return Object.values(countries).find(
+    (country) =>
+      country.slug === slug ||
+      country.long_slug === slug ||
+      country.short_slug === slug
+  );
+}
+
+export function getCountriesByRegion(region: string): Country[] {
+  return Object.values(countries).filter(
+    (country) => country.region.toLowerCase() === region.toLowerCase()
+  );
+}
+
+// Taxation data utility functions
+import { taxation_data, TaxationData } from "./tax-data.js";
+
+export function getTaxationData(countryCode: string): TaxationData | undefined {
+  return taxation_data[countryCode.toUpperCase()];
+}
+
+export function getAllTaxationData(): { [key: string]: TaxationData } {
+  return taxation_data;
+}
+
+export function getTaxationDataBySlug(slug: string): TaxationData | undefined {
+  return Object.values(taxation_data).find((data) => data.slug === slug);
+}
+
+export function getZeroTaxCountries(): TaxationData[] {
+  return Object.values(taxation_data).filter((data) => data.zero_tax_system);
+}
+
+export function getTerritorialTaxCountries(): TaxationData[] {
+  return Object.values(taxation_data).filter(
+    (data) => data.territorial_tax_system
+  );
+}
+
+// Type definitions for better TypeScript support
 
 export interface MercatorCoordinate {
   longitude: number;
