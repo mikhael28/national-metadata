@@ -55,3 +55,9 @@ export type {
   PathGenerator,
   Point,
 } from "./src/utils";
+
+// Export continental GeoJSON data
+export * from "./continents";
+
+// Export country TopoJSON utilities
+export * from "./countries";

@@ -1,7 +1,7 @@
 {
   "name": "national-metadata",
-  "version": "0.1.7",
-  "description": "Comprehensive country, city, visa, and prosperity data including ISO codes, coordinates, 1300+ city slugs, visa requirements, and Legatum rankings",
+  "version": "0.2.0",
+  "description": "Comprehensive metadata for all nation-states and their associated territories, including demographics, taxation, prosperity rankings, immigration, healthcare data and mapping data through topojson & geojson.",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -18,11 +18,24 @@
       "require": "./dist/mapping/index.js",
       "types": "./dist/mapping/index.d.ts"
     },
+    "./maps/continents": {
+      "import": "./dist/mapping/continents.js",
+      "require": "./dist/mapping/continents.js",
+      "types": "./dist/mapping/continents.d.ts"
+    },
+    "./maps/countries": {
+      "import": "./dist/mapping/countries.js",
+      "require": "./dist/mapping/countries.js",
+      "types": "./dist/mapping/countries.d.ts"
+    },
+    "./maps/continents/*": "./dist/mapping/continental-geojson/*",
+    "./maps/countries/*": "./dist/mapping/topojson/*",
     "./flags/*": "./dist/flag-svg/*"
   },
   "scripts": {
-    "build": "tsc && npm run copy-flags",
+    "build": "tsc && npm run copy-flags && npm run copy-geojson",
     "copy-flags": "mkdir -p dist/flag-svg && cp -r src/flag-svg/* dist/flag-svg/",
+    "copy-geojson": "mkdir -p dist/mapping/continental-geojson dist/mapping/topojson && cp src/mapping/continental-geojson/*.json dist/mapping/continental-geojson/ && cp src/mapping/topojson/*.json dist/mapping/topojson/",
     "dev": "tsc --watch",
     "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -92,6 +105,8 @@
     "dist/**/*",
     "dist/flag-svg/*.svg",
     "dist/mapping/**/*",
+    "dist/mapping/continental-geojson/*.json",
+    "dist/mapping/topojson/*.json",
     "README.md",
     "LICENSE"
   ]
