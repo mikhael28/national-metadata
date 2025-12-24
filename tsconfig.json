@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ES2020",
-    "lib": ["ES2020"],
+    "lib": ["ES2020", "DOM"],
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -14,7 +14,9 @@
     "sourceMap": true,
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "allowImportingTsExtensions": false
+    "allowImportingTsExtensions": false,
+    "jsx": "react",
+    "allowJs": true
   },
   "include": [
     "src/**/*"
@@ -22,6 +24,7 @@
   "exclude": [
     "node_modules",
     "dist",
-    "src/flag-svg"
+    "src/flag-svg",
+    "src/mapping/README.md"
   ]
 }
